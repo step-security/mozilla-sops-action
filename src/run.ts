@@ -50,7 +50,7 @@ function getSopsDownloadURL(version: string): string {
 
         case 'Windows_NT':
         default:
-            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.exe', version, version);
+            return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.amd64.exe', version, version);
     }
 }
 

@@ -31,15 +31,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
@@ -49,23 +40,40 @@ const semver = __importStar(__nccwpck_require__(1383));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const core = __importStar(__nccwpck_require__(2186));
 const axios_1 = __importStar(__nccwpck_require__(8757));
-function validateSubscription() {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a;
-        const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
-        try {
-            yield axios_1.default.get(API_URL, { timeout: 3000 });
+async function validateSubscription() {
+    const eventPath = process.env.GITHUB_EVENT_PATH;
+    let repoPrivate;
+    if (eventPath && fs.existsSync(eventPath)) {
+        const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf8'));
+        repoPrivate = eventData?.repository?.private;
+    }
+    const upstream = 'mozilla/sops';
+    const action = process.env.GITHUB_ACTION_REPOSITORY;
+    const docsUrl = 'https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions';
+    core.info('');
+    core.info('[1;36mStepSecurity Maintained Action[0m');
+    core.info(`Secure drop-in replacement for ${upstream}`);
+    if (repoPrivate === false)
+        core.info('[32m✓ Free for public repositories[0m');
+    core.info(`[36mLearn more:[0m ${docsUrl}`);
+    core.info('');
+    if (repoPrivate === false)
+        return;
+    const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
+    const body = { action: action || '' };
+    if (serverUrl !== 'https://github.com')
+        body.ghes_server = serverUrl;
+    try {
+        await axios_1.default.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3000 });
+    }
+    catch (error) {
+        if ((0, axios_1.isAxiosError)(error) && error.response?.status === 403) {
+            core.error(`[1;31mThis action requires a StepSecurity subscription for private repositories.[0m`);
+            core.error(`[31mLearn how to enable a subscription: ${docsUrl}[0m`);
+            process.exit(1);
         }
-        catch (error) {
-            if ((0, axios_1.isAxiosError)(error) && ((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 403) {
-                core.error('Subscription is not valid. Reach out to support@stepsecurity.io');
-                process.exit(1);
-            }
-            else {
-                core.info('Timeout or API not reachable. Continuing to next step.');
-            }
-        }
-    });
+        core.info('Timeout or API not reachable. Continuing to next step.');
+    }
 }
 const sopsToolName = 'sops';
 const stableSopsVersion = 'v3.7.3';
@@ -87,31 +95,29 @@ function getSopsDownloadURL(version) {
             return util.format('https://github.com/getsops/sops/releases/download/%s/sops-%s.amd64.exe', version, version);
     }
 }
-function getstableSopsVersion() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const downloadPath = yield toolCache.downloadTool(sopsAllReleasesUrl);
-            const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
-            let latestSopsVersion = semver.clean(stableSopsVersion);
-            responseArray.forEach(response => {
-                if (response && response.tag_name) {
-                    let currentSopsVerison = semver.clean(response.tag_name.toString());
-                    if (currentSopsVerison) {
-                        if (currentSopsVerison.toString().indexOf('rc') == -1 && semver.gt(currentSopsVerison, latestSopsVersion)) {
-                            //If current sops version is not a pre release and is greater than latest sops version
-                            latestSopsVersion = currentSopsVerison;
-                        }
+async function getstableSopsVersion() {
+    try {
+        const downloadPath = await toolCache.downloadTool(sopsAllReleasesUrl);
+        const responseArray = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
+        let latestSopsVersion = semver.clean(stableSopsVersion);
+        responseArray.forEach(response => {
+            if (response && response.tag_name) {
+                let currentSopsVerison = semver.clean(response.tag_name.toString());
+                if (currentSopsVerison) {
+                    if (currentSopsVerison.toString().indexOf('rc') == -1 && semver.gt(currentSopsVerison, latestSopsVersion)) {
+                        //If current sops version is not a pre release and is greater than latest sops version
+                        latestSopsVersion = currentSopsVerison;
                     }
                 }
-            });
-            latestSopsVersion = "v" + latestSopsVersion;
-            return latestSopsVersion;
-        }
-        catch (error) {
-            core.warning(util.format("Cannot get the latest Sops info from %s. Error %s. Using default Sops version %s.", sopsAllReleasesUrl, error, stableSopsVersion));
-        }
-        return stableSopsVersion;
-    });
+            }
+        });
+        latestSopsVersion = "v" + latestSopsVersion;
+        return latestSopsVersion;
+    }
+    catch (error) {
+        core.warning(util.format("Cannot get the latest Sops info from %s. Error %s. Using default Sops version %s.", sopsAllReleasesUrl, error, stableSopsVersion));
+    }
+    return stableSopsVersion;
 }
 var walkSync = function (dir, filelist, fileToFind) {
     var files = fs.readdirSync(dir);
@@ -129,30 +135,28 @@ var walkSync = function (dir, filelist, fileToFind) {
     });
     return filelist;
 };
-function downloadSops(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!version) {
-            version = yield getstableSopsVersion();
+async function downloadSops(version) {
+    if (!version) {
+        version = await getstableSopsVersion();
+    }
+    let cachedToolpath = toolCache.find(sopsToolName, version);
+    if (!cachedToolpath) {
+        let sopsDownloadPath;
+        try {
+            sopsDownloadPath = await toolCache.downloadTool(getSopsDownloadURL(version));
         }
-        let cachedToolpath = toolCache.find(sopsToolName, version);
-        if (!cachedToolpath) {
-            let sopsDownloadPath;
-            try {
-                sopsDownloadPath = yield toolCache.downloadTool(getSopsDownloadURL(version));
-            }
-            catch (exception) {
-                throw new Error(util.format("Failed to download Sops from location ", getSopsDownloadURL(version)));
-            }
-            fs.chmodSync(sopsDownloadPath, '777');
-            cachedToolpath = yield toolCache.cacheFile(sopsDownloadPath, sopsToolName + getExecutableExtension(), sopsToolName, version);
+        catch (exception) {
+            throw new Error(util.format("Failed to download Sops from location ", getSopsDownloadURL(version)));
         }
-        const sopspath = findSops(cachedToolpath);
-        if (!sopspath) {
-            throw new Error(util.format("Sops executable not found in path ", cachedToolpath));
-        }
-        fs.chmodSync(sopspath, '777');
-        return sopspath;
-    });
+        fs.chmodSync(sopsDownloadPath, '777');
+        cachedToolpath = await toolCache.cacheFile(sopsDownloadPath, sopsToolName + getExecutableExtension(), sopsToolName, version);
+    }
+    const sopspath = findSops(cachedToolpath);
+    if (!sopspath) {
+        throw new Error(util.format("Sops executable not found in path ", cachedToolpath));
+    }
+    fs.chmodSync(sopspath, '777');
+    return sopspath;
 }
 function findSops(rootFolder) {
     fs.chmodSync(rootFolder, '777');
@@ -165,28 +169,26 @@ function findSops(rootFolder) {
         return filelist[0];
     }
 }
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield validateSubscription();
-        let version = core.getInput('version', { 'required': true });
-        if (version.toLocaleLowerCase() === 'latest') {
-            version = yield getstableSopsVersion();
+async function run() {
+    await validateSubscription();
+    let version = core.getInput('version', { 'required': true });
+    if (version.toLocaleLowerCase() === 'latest') {
+        version = await getstableSopsVersion();
+    }
+    else if (!version.toLocaleLowerCase().startsWith('v')) {
+        version = 'v' + version;
+    }
+    let cachedPath = await downloadSops(version);
+    try {
+        if (!process.env['PATH'].startsWith(path.dirname(cachedPath))) {
+            core.addPath(path.dirname(cachedPath));
         }
-        else if (!version.toLocaleLowerCase().startsWith('v')) {
-            version = 'v' + version;
-        }
-        let cachedPath = yield downloadSops(version);
-        try {
-            if (!process.env['PATH'].startsWith(path.dirname(cachedPath))) {
-                core.addPath(path.dirname(cachedPath));
-            }
-        }
-        catch (_a) {
-            //do nothing, set as output variable
-        }
-        console.log(`Sops tool version: '${version}' has been cached at ${cachedPath}`);
-        core.setOutput('sops-path', cachedPath);
-    });
+    }
+    catch {
+        //do nothing, set as output variable
+    }
+    console.log(`Sops tool version: '${version}' has been cached at ${cachedPath}`);
+    core.setOutput('sops-path', cachedPath);
 }
 run().catch(core.setFailed);
 

@@ -1,6 +1,15 @@
 name: Auto Cherry-Pick from Upstream
 
 on:
+   pull_request:
+      branches:
+         - main
+      types:
+         - opened
+         - synchronize
+         - reopened
+         - labeled
+
    workflow_dispatch:
       inputs:
          base_branch:

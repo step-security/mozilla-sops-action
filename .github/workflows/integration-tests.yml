@@ -9,12 +9,7 @@ jobs:
       name: Trigger Integration tests
       strategy:
          matrix:
-            os:
-               - ubuntu-latest
-               - ubuntu-24.04-arm
-               - macos-latest
-               - windows-latest
-               - windows-11-arm
+            os: ${{ github.actor == 'dependabot[bot]' && fromJson('["ubuntu-latest"]') || fromJson('["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest", "windows-latest", "windows-11-arm"]') }}
          fail-fast: false
       runs-on: ${{ matrix.os }}
       env:

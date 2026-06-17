@@ -1,7 +1,11 @@
 # dependencies
 /node_modules
 coverage
-/lib
+/dist
 /tmp
 /.claude
+<<<<<<< HEAD
 dist
+=======
+.github/workflows
+>>>>>>> 92e2341 (chore: Update `.prettierignore` to exclude `.github/workflows` and replace `/lib` with `/dist`)

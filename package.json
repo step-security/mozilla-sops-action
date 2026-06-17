@@ -1,28 +1,35 @@
 {
-  "name": "setupsops",
-  "version": "1.6.0",
-  "private": true,
-  "description": "Setup sops",
-  "author": "step-security",
-  "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^2.0.0",
-    "@actions/exec": "^2.0.0",
-    "@actions/io": "^2.0.0",
-    "@actions/tool-cache": "^3.0.1",
-    "axios": "^1.9.0",
-    "semver": "^7.5.4"
-  },
-  "main": "lib/run.js",
-  "scripts": {
-    "build": "npx tsc",
-    "publish": "npm run build && ncc build lib/run.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.12.8",
-    "@vercel/ncc": "^0.38.1",
-    "gts": "^7.0.0",
-    "typescript": "^5.4.5"
-  }
+   "name": "mozilla-sops-action",
+   "version": "2.0.0",
+   "private": true,
+   "type": "module",
+   "description": "GitHub Action to install a specific version of the SOPS binary",
+   "author": "step-security",
+   "license": "MIT",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/step-security/mozilla-sops-action.git"
+   },
+   "dependencies": {
+      "@actions/core": "^3.0.1",
+      "@actions/tool-cache": "^4.0.0",
+      "axios": "^1.9.0"
+   },
+   "main": "dist/index.js",
+   "scripts": {
+      "build": "ncc build src/index.ts -o dist",
+      "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+      "test-coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+      "format": "prettier --write .",
+      "format-check": "prettier --check ."
+   },
+   "devDependencies": {
+      "@types/jest": "^30.0.0",
+      "@types/node": "^25.0.9",
+      "@vercel/ncc": "^0.38.4",
+      "jest": "^30.2.0",
+      "prettier": "^3.8.0",
+      "ts-jest": "^29.4.6",
+      "typescript": "^6.0.3"
+   }
 }

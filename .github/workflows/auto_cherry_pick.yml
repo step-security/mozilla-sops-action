@@ -11,6 +11,14 @@ on:
             description: 'Script to run after audit fix'
             required: false
             default: 'npm run publish'
+         mode:
+            description: "Run mode: cherry-pick or verify"
+            required: false
+            default: "cherry-pick"
+         node_version:
+            description: "Node.js version to use"
+            required: false
+            default: "24"
 
 permissions:
    contents: write
@@ -20,9 +28,13 @@ permissions:
 
 jobs:
    cherry-pick:
+      if: github.event_name == 'workflow_dispatch' || contains(fromJson(toJson(github.event.pull_request.labels)).*.name, 'review-required')
       uses: step-security/reusable-workflows/.github/workflows/auto_cherry_pick.yaml@v1
       with:
          original-owner: 'mdgreenwald'
          repo-name: 'mozilla-sops-action'
          base_branch: ${{ inputs.base_branch }}
          script: ${{ inputs.script || 'npm run publish' }}
+         mode: ${{ github.event_name == 'pull_request' && 'verify' || inputs.mode }}
+         node_version: ${{ inputs.node_version || '24' }}
+

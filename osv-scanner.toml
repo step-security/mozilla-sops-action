@@ -1,3 +1,3 @@
 [[IgnoredVulns]]
-id = "GHSA-52f5-9888-hmc6"
-reason = "tmp@0.0.33 is pulled in transitively by gts -> inquirer -> external-editor. gts is a devDependency used only for lint/format and is not bundled into dist/ or lib/, so this does not affect production code."
+id = "GHSA-h67p-54hq-rp68"
+reason = "js-yaml@3.14.2 is pulled in transitively by ts-jest -> @jest/transform -> babel-plugin-istanbul -> @istanbuljs/load-nyc-config. ts-jest is a devDependency used only for testing and is not bundled into dist/, so this does not affect production code."

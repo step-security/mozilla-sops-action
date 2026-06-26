@@ -5,3 +5,4 @@ coverage
 /.claude
 dist
 .github
+.pre-commit-config.yaml

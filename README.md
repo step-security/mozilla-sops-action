@@ -31,7 +31,7 @@ Resolving `version: latest` queries the GitHub API, which is capped at 60 reques
 
 ```yaml
 - name: Install SOPS
-  uses: mdgreenwald/mozilla-sops-action@v2.0.1
+  uses: step-security/mozilla-sops-action@v2
   with:
      token: ${{ secrets.GITHUB_TOKEN }}
 ```

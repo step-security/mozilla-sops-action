@@ -7,7 +7,7 @@ import * as core from '@actions/core'
 import axios, {isAxiosError} from 'axios'
 
 const sopsToolName = 'sops'
-export const stableSopsVersion = 'v3.13.0'
+export const stableSopsVersion = 'v3.13.1'
 const sopsLatestReleaseURL =
    'https://api.github.com/repos/getsops/sops/releases/latest'
 
@@ -20,7 +20,8 @@ export async function run() {
    }
    if (version.toLocaleLowerCase() === 'latest') {
       core.info('Getting latest SOPS version')
-      version = await getLatestSopsVersion()
+      const token = core.getInput('token', {required: false})
+      version = await getLatestSopsVersion(token)
    }
 
    const downloadBaseURL = core.getInput('downloadBaseURL', {required: false})
@@ -47,12 +48,17 @@ export function getValidVersion(version: string): string {
 }
 
 // Gets the latest SOPS version or returns the stable fallback if the API is
-// unreachable.
-export async function getLatestSopsVersion(): Promise<string> {
+// unreachable. Passing a GitHub token raises the API rate limit from 60/hr
+// (unauthenticated) to 1000/hr.
+export async function getLatestSopsVersion(token?: string): Promise<string> {
    try {
-      const response = await fetch(sopsLatestReleaseURL, {
-         headers: {Accept: 'application/vnd.github+json'}
-      })
+      const headers: Record<string, string> = {
+         Accept: 'application/vnd.github+json'
+      }
+      if (token) {
+         headers.Authorization = `Bearer ${token}`
+      }
+      const response = await fetch(sopsLatestReleaseURL, {headers})
       if (!response.ok) {
          throw new Error(`HTTP ${response.status}`)
       }

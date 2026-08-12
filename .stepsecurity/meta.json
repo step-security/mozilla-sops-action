@@ -1,0 +1,18 @@
+{
+   "schema_version": "1",
+   "onboarding_type": "copied",
+   "archived": false,
+   "maintained_action_name": "step-security/mozilla-sops-action",
+   "upstream_full_repo_name": "mdgreenwald/mozilla-sops-action",
+   "action_type": "node",
+   "last_release": {
+     "tag_name": "v2.0.0",
+     "created_at": "2026-06-26T17:01:58Z",
+     "published_at": "2026-06-26T19:47:58Z"
+   },
+   "sync": {
+     "ignore_presets": [
+       "defaults_v1"
+     ]
+   }
+ }

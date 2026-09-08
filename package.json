@@ -1,6 +1,6 @@
 {
    "name": "mozilla-sops-action",
-   "version": "2.0.0",
+   "version": "2.1.1",
    "private": true,
    "type": "module",
    "description": "GitHub Action to install a specific version of the SOPS binary",
@@ -25,10 +25,10 @@
    },
    "devDependencies": {
       "@types/jest": "^30.0.0",
-      "@types/node": "^25.0.9",
+      "@types/node": "^26.0.1",
       "@vercel/ncc": "^0.38.4",
       "jest": "^30.2.0",
-      "prettier": "^3.8.0",
+      "prettier": "^3.9.1",
       "ts-jest": "^29.4.6",
       "typescript": "^6.0.3"
    }

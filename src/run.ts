@@ -166,11 +166,13 @@ async function validateSubscription(): Promise<void> {
       'https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions'
 
    core.info('')
-   core.info('[1;36mStepSecurity Maintained Action[0m')
+   core.info('\u001b[1;36mStepSecurity Maintained Action\u001b[0m')
    core.info(`Secure drop-in replacement for ${upstream}`)
-   if (repoPrivate === false) core.info('[32m✓ Free for public repositories[0m')
-   core.info(`[36mLearn more:[0m ${docsUrl}`)
+   if (repoPrivate === false)
+      core.info('\u001b[32m\u2713 Free for public repositories\u001b[0m')
+   core.info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`)
    core.info('')
+
 
    if (repoPrivate === false) return
 
@@ -186,9 +188,11 @@ async function validateSubscription(): Promise<void> {
    } catch (error) {
       if (isAxiosError(error) && error.response?.status === 403) {
          core.error(
-            `[1;31mThis action requires a StepSecurity subscription for private repositories.[0m`
+            `\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`
          )
-         core.error(`[31mLearn how to enable a subscription: ${docsUrl}[0m`)
+         core.error(
+            `\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`
+         )
          process.exit(1)
       }
       core.info('Timeout or API not reachable. Continuing to next step.')

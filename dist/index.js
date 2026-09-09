@@ -47753,7 +47753,9 @@ async function downloadSops(baseURL, version) {
     if (!external_node_fs_namespaceObject.existsSync(sopspath)) {
         throw new Error(`SOPS executable not found in path ${cachedToolpath}`);
     }
-    external_node_fs_namespaceObject.chmodSync(sopspath, '777');
+    if (!isExecutable(sopspath)) {
+        external_node_fs_namespaceObject.chmodSync(sopspath, '777');
+    }
     return sopspath;
 }
 async function validateSubscription() {
@@ -47789,6 +47791,19 @@ async function validateSubscription() {
             process.exit(1);
         }
         info('Timeout or API not reachable. Continuing to next step.');
+    }
+}
+// Some tool-cache filesystems (e.g. an SMB/CIFS share mounted on a
+// self-hosted runner) reject chmod with EPERM even though the cached
+// binary already carries the executable bit from the original download.
+// Skip the redundant chmod in that case rather than failing the run.
+function isExecutable(filePath) {
+    try {
+        external_node_fs_namespaceObject.accessSync(filePath, external_node_fs_namespaceObject.constants.X_OK);
+        return true;
+    }
+    catch {
+        return false;
     }
 }
 

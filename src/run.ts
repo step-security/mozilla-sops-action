@@ -173,7 +173,6 @@ async function validateSubscription(): Promise<void> {
    core.info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`)
    core.info('')
 
-
    if (repoPrivate === false) return
 
    const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com'

@@ -1,5 +1,6 @@
 import {nodeResolve} from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
+import json from '@rollup/plugin-json'
 
 // Known, benign warnings from bundled dependencies: TypeScript's __awaiter
 // helper in @actions/* references top-level `this`, and @actions/core and
@@ -8,12 +9,13 @@ const fromDeps = (id) => id?.includes('node_modules')
 
 export default {
    input: 'build/index.js',
-   output: {file: 'lib/index.js', format: 'es'},
+   output: {file: 'dist/index.js', format: 'es'},
    plugins: [
       nodeResolve({preferBuiltins: true, exportConditions: ['node']}),
       // undici wraps require('node:crypto') in try/catch; without this those
       // calls are left as bare require(), which is undefined in an ESM bundle.
-      commonjs({ignoreTryCatch: false})
+      commonjs({ignoreTryCatch: false}),
+      json()
    ],
    onwarn(warning) {
       if (warning.code === 'THIS_IS_UNDEFINED' && fromDeps(warning.id)) return

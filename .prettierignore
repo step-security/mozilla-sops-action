@@ -1,13 +1,11 @@
 # dependencies
 /node_modules
 coverage
-<<<<<<< b1573c387d7445d8bc3c86d648a6c2559cb6c836
-=======
 /lib
 /build
->>>>>>> 445a53a02b8035308eba2705856311ac1ef18c8c
 /tmp
 /.claude
 dist
 .github
 .pre-commit-config.yaml
+config.json

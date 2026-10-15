@@ -1,4 +1,5 @@
 name: 'Mozilla SOPS Installer'
+author: step-security
 description: 'Install a specific version of the sops binary. Acceptable values are latest or any semantic version string like v3.13.1'
 inputs:
    version:

@@ -99,3 +99,6 @@ __tests__/runner/*
 
 lib
 .idea/
+
+# TypeScript output staged for rollup
+/build

@@ -1,6 +1,6 @@
 {
    "name": "mozilla-sops-action",
-   "version": "2.1.1",
+   "version": "2.1.2",
    "private": true,
    "type": "module",
    "description": "GitHub Action to install a specific version of the SOPS binary",
@@ -17,13 +17,21 @@
    },
    "main": "dist/index.js",
    "scripts": {
+<<<<<<< b1573c387d7445d8bc3c86d648a6c2559cb6c836
       "build": "ncc build src/index.ts -o dist",
       "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
       "test-coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+=======
+      "build": "tsc -p tsconfig.build.json && rollup -c",
+      "typecheck": "tsc --noEmit",
+      "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js",
+      "test-coverage": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --coverage",
+>>>>>>> 445a53a02b8035308eba2705856311ac1ef18c8c
       "format": "prettier --write .",
       "format-check": "prettier --check ."
    },
    "devDependencies": {
+<<<<<<< b1573c387d7445d8bc3c86d648a6c2559cb6c836
       "@types/jest": "^30.0.0",
       "@types/node": "^26.0.1",
       "@vercel/ncc": "^0.45.0",
@@ -31,5 +39,19 @@
       "prettier": "^3.9.1",
       "ts-jest": "^29.4.6",
       "typescript": "^6.0.3"
+=======
+      "@jest/globals": "^30.5.2",
+      "@rollup/plugin-commonjs": "^29.0.3",
+      "@rollup/plugin-node-resolve": "^16.0.3",
+      "@types/node": "^26.6.4",
+      "husky": "^9.1.7",
+      "jest": "^30.5.2",
+      "prettier": "^3.9.9",
+      "rollup": "^4.64.0",
+      "typescript": "^7.0.2"
+   },
+   "overrides": {
+      "js-yaml": "^4.3.2"
+>>>>>>> 445a53a02b8035308eba2705856311ac1ef18c8c
    }
 }
